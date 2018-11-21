@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
 using System.Net.Mail;
 using System.Text;
-using System.Web;
 
 namespace MessageService
 {
+    //Sending requested message to reciepient
     public class EmailSender : ISender
     {
         public void SendMessage(MessageRequest message, string address)

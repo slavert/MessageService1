@@ -1,7 +1,7 @@
 ﻿using System.Runtime.Serialization;
 using System.ServiceModel;
-using System.Text.RegularExpressions;
 
+//WCF Service definitions
 namespace MessageService
 {
     [ServiceContract]
@@ -29,9 +29,9 @@ namespace MessageService
         public string FirstName { get; set; }
         [DataMember]
         public string LastName { get; set; }
-        [DataMember(IsRequired = true)]
+        [DataMember(IsRequired = true, EmitDefaultValue = false)]
         public LegalForm LegalForm { get; set; }
-        [DataMember(IsRequired = false)]
+        [DataMember]
         public Contact[] Contacts { get; set; }
     }
 
@@ -89,4 +89,5 @@ namespace MessageService
         [EnumMember]
         OfficeEmail
     }
+
 }
