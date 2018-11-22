@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Ninject;
+using Ninject.Modules;
+using System.Reflection;
 
 namespace MessageService
 {
@@ -12,17 +15,18 @@ namespace MessageService
     [ServiceBehavior]
     public class MessageService : IMessageService
     {
-        private ISender sender;
-
-        public MessageService()
-        {
-            sender = new EmailSender(new DatabaseConnectionMSSQL());
-        }
 
         public MessageResponse Send(MessageRequest message)
         {
+            //Setting dependency injection container
+            IKernel kernel = new StandardKernel();
+            kernel.Load(Assembly.GetExecutingAssembly());
 
-            MessageValidator messageValidator = new MessageValidator(message, new RecipientEmailAddressResolver(), new DatabaseConnectionMSSQL());
+            var DatabaseConnection = kernel.Get<IDatabaseConnection>();
+            var RecipientAddressResolver = kernel.Get<IRecipientAddressResolver>();
+
+            ISender sender = new EmailSender(DatabaseConnection);
+            MessageValidator messageValidator = new MessageValidator(message, RecipientAddressResolver, DatabaseConnection);
 
             //Send response using interface if message validation was successful
             if (messageValidator.MessageValidationPassed)
@@ -41,5 +45,15 @@ namespace MessageService
         }
 
 
+    }
+
+    //Dependency injection container bindings
+    public class Bindings : NinjectModule
+    {
+        public override void Load()
+        {
+            Bind<IDatabaseConnection>().To<DatabaseConnectionMSSQL>();
+            Bind<IRecipientAddressResolver>().To<RecipientEmailAddressResolver>();
+        }
     }
 }

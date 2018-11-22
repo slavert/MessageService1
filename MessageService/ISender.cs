@@ -20,28 +20,36 @@ namespace MessageService
             //Log actions to database
             DatabaseConnection.WriteToDatabase(message, address, null, null);
 
-            MailMessage mailMessage = new MailMessage()
+            try
             {
-                From = new MailAddress(ConfigurationManager.AppSettings["SenderAddress"]),
-                Subject = message.Subject,
-                Body = message.Message,
-                BodyEncoding = UTF8Encoding.UTF8
-            };
+                MailMessage mailMessage = new MailMessage()
+                {
+                    From = new MailAddress(ConfigurationManager.AppSettings["SenderAddress"]),
+                    Subject = message.Subject,
+                    Body = message.Message,
+                    BodyEncoding = UTF8Encoding.UTF8
+                };
 
-            mailMessage.To.Add(new MailAddress(address));
+                mailMessage.To.Add(new MailAddress(address));
 
-            SmtpClient smtpClient = new SmtpClient()
+                SmtpClient smtpClient = new SmtpClient()
+                {
+                    UseDefaultCredentials = false,
+                    EnableSsl = true,
+                    Host = ConfigurationManager.AppSettings["SmtpHost"],
+                    Port = Convert.ToInt32(ConfigurationManager.AppSettings["SmtpPort"]),
+                    Timeout = Convert.ToInt32(ConfigurationManager.AppSettings["SmtpTimeout"]),
+                    DeliveryMethod = SmtpDeliveryMethod.Network,
+                    Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["SmtpUsername"], ConfigurationManager.AppSettings["SmtpPassword"])
+                };
+
+                smtpClient.Send(mailMessage);
+            }
+            catch(Exception error)
             {
-                UseDefaultCredentials = false,
-                EnableSsl = true,
-                Host = ConfigurationManager.AppSettings["SmtpHost"],
-                Port = Convert.ToInt32(ConfigurationManager.AppSettings["SmtpPort"]),
-                Timeout = Convert.ToInt32(ConfigurationManager.AppSettings["SmtpTimeout"]),
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["SmtpUsername"], ConfigurationManager.AppSettings["SmtpPassword"])
-            };
-
-            smtpClient.Send(mailMessage);
+                DatabaseConnection.WriteToDatabase(null, null, error.Message, Convert.ToString(ReturnCode.InternalError));
+            }
+            
         }
     }
 
