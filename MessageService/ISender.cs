@@ -8,8 +8,18 @@ namespace MessageService
     //Sending requested message to reciepient
     public class EmailSender : ISender
     {
+        private IDatabaseConnection DatabaseConnection { get; set; }
+
+        public EmailSender(IDatabaseConnection databaseConnection)
+        {
+            DatabaseConnection = databaseConnection;
+        }
+
         public void SendMessage(MessageRequest message, string address)
         {
+            //Log actions to database
+            DatabaseConnection.WriteToDatabase(message, address, null, null);
+
             MailMessage mailMessage = new MailMessage()
             {
                 From = new MailAddress(ConfigurationManager.AppSettings["SenderAddress"]),
