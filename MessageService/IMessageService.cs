@@ -38,7 +38,7 @@ namespace MessageService
     [DataContract]
     public class Contact
     {
-        [DataMember]
+        [DataMember(IsRequired = true, EmitDefaultValue = false)]
         public ContactType ContactType { get; set; }
         [DataMember]
         public string Value { get; set; }

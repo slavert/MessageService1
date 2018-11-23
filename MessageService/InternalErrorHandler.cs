@@ -3,7 +3,7 @@ using System.ServiceModel.Dispatcher;
 
 namespace MessageService
 { 
-    //Internal error handler
+    //Input message internal error handler
     public class InternalErrorHandler : IErrorHandler
     {
 

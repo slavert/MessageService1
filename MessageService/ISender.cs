@@ -5,19 +5,19 @@ using System.Text;
 
 namespace MessageService
 {
-    //Sending requested message to reciepient
+    //Sending requested message to recipient
     public class EmailSender : ISender
     {
-        private IDatabaseConnection DatabaseConnection { get; set; }
+        IDatabaseConnection DatabaseConnection { get; set; }
 
         public EmailSender(IDatabaseConnection databaseConnection)
         {
             DatabaseConnection = databaseConnection;
         }
 
-        public void SendMessage(MessageRequest message, string address)
+        public void SendMessage(MessageRequest message, string address, ref MessageResponse senderMessageResponse)
         {
-            //Log actions to database
+            //Logging actions to database
             DatabaseConnection.WriteToDatabase(message, address, null, null);
 
             try
@@ -47,6 +47,11 @@ namespace MessageService
             }
             catch(Exception error)
             {
+                senderMessageResponse = new MessageResponse()
+                {
+                    ErrorMessage = error.Message,
+                    ReturnCode = ReturnCode.InternalError
+                };
                 DatabaseConnection.WriteToDatabase(null, null, error.Message, Convert.ToString(ReturnCode.InternalError));
             }
             
@@ -55,6 +60,6 @@ namespace MessageService
 
     public interface ISender
     {
-        void SendMessage(MessageRequest message, string address);
+        void SendMessage(MessageRequest message, string address, ref MessageResponse senderMessageResponse);
     }
 }

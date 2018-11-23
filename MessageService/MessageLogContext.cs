@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace MessageService
 {
-
+    //Entity Framework model
     public class MessageLogContext : DbContext
     {
 

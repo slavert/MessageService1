@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MessageService
 {
+    //Entity Framework model
     public class MessageLog
     {
         [Key]

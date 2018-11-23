@@ -13,12 +13,16 @@ namespace MessageService
                 var MessageLog = new MessageLog()
                 {
                     EmailAddress = address,
-                    Subject = message.Subject,
-                    Content = message.Message,
                     ErrorMessage = errorMessage,
                     ReturnCode = returnCode,
                     CreationDate = DateTime.Now
                 };
+
+                if (message!=null)
+                {
+                    MessageLog.Subject = message.Subject;
+                    MessageLog.Content = message.Message;
+                }
 
                 db.MessageLogDbSet.Add(MessageLog);
                 db.SaveChanges();

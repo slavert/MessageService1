@@ -25,22 +25,20 @@ namespace MessageService
             var DatabaseConnection = kernel.Get<IDatabaseConnection>();
             var RecipientAddressResolver = kernel.Get<IRecipientAddressResolver>();
 
-            ISender sender = new EmailSender(DatabaseConnection);
             MessageValidator messageValidator = new MessageValidator(message, RecipientAddressResolver, DatabaseConnection);
 
-            //Send response using interface if message validation was successful
+            //Send response using interface if input message validation was successful
             if (messageValidator.MessageValidationPassed)
             {
+                ISender sender = new EmailSender(DatabaseConnection);
+                MessageResponse SenderMessageResponse = null;
                 //Send requested message to recipient
-                sender.SendMessage(message, messageValidator.RecipientAddress);
-                //Send null response using interface
-                return null;
+                sender.SendMessage(message, messageValidator.RecipientAddress, ref SenderMessageResponse);
+
+                return SenderMessageResponse;
             }
             else
-            {
-                //Send response using interface
                 return messageValidator.messageResponse;
-            }
             
         }
 
