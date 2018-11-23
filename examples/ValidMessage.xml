@@ -1,0 +1,27 @@
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+  <s:Header>
+  </s:Header>
+  <s:Body>
+    <Send xmlns="http://tempuri.org/">
+      <message xmlns:d4p1="http://schemas.datacontract.org/2004/07/MessageService" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+        <d4p1:Message>Hello, this is a message.</d4p1:Message>
+        <d4p1:Recipient>
+          <d4p1:Contacts>
+            <d4p1:Contact>
+                <d4p1:ContactType>Mobile</d4p1:ContactType>
+                <d4p1:Value>12345</d4p1:Value>
+            </d4p1:Contact>
+            <d4p1:Contact>
+                <d4p1:ContactType>Email</d4p1:ContactType>
+                <d4p1:Value>john.doe@gmail.com</d4p1:Value>
+            </d4p1:Contact>
+          </d4p1:Contacts>
+          <d4p1:FirstName>John</d4p1:FirstName>
+          <d4p1:LastName>Doe</d4p1:LastName>
+          <d4p1:LegalForm>Person</d4p1:LegalForm>
+        </d4p1:Recipient>
+        <d4p1:Subject>Message</d4p1:Subject>
+      </message>
+    </Send>
+  </s:Body>
+</s:Envelope>
