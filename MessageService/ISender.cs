@@ -18,7 +18,7 @@ namespace MessageService
         public void SendMessage(MessageRequest message, string address, ref MessageResponse senderMessageResponse)
         {
             //Logging actions to database
-            DatabaseConnection.WriteToDatabase(message, address, null, null);
+            DatabaseConnection.WriteToDatabase(message, address, ref senderMessageResponse);
 
             try
             {
@@ -52,7 +52,7 @@ namespace MessageService
                     ErrorMessage = error.Message,
                     ReturnCode = ReturnCode.InternalError
                 };
-                DatabaseConnection.WriteToDatabase(null, null, error.Message, Convert.ToString(ReturnCode.InternalError));
+                DatabaseConnection.WriteToDatabase(null, null, ref senderMessageResponse);
             }
             
         }

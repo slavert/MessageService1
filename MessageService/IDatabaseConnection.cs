@@ -6,33 +6,49 @@ namespace MessageService
     public class DatabaseConnectionMSSQL : IDatabaseConnection
     {
 
-        public void WriteToDatabase(MessageRequest message, string address, string errorMessage, string returnCode)
+        public void WriteToDatabase(MessageRequest message, string address, ref MessageResponse messageResponse)
         {
-            using (var db = new MessageLogContext())
+            try
             {
-                var MessageLog = new MessageLog()
+                using (var db = new MessageLogContext())
                 {
-                    EmailAddress = address,
-                    ErrorMessage = errorMessage,
-                    ReturnCode = returnCode,
-                    CreationDate = DateTime.Now
-                };
+                    var MessageLog = new MessageLog()
+                    {
+                        EmailAddress = address,
 
-                if (message!=null)
-                {
-                    MessageLog.Subject = message.Subject;
-                    MessageLog.Content = message.Message;
+                        CreationDate = DateTime.Now
+                    };
+
+                    if (message != null)
+                    {
+                        MessageLog.Subject = message.Subject;
+                        MessageLog.Content = message.Message;
+                    }
+
+                    if (messageResponse != null)
+                    {
+                        MessageLog.ErrorMessage = messageResponse.ErrorMessage;
+                        MessageLog.ReturnCode = Convert.ToString(messageResponse.ReturnCode);
+                    }
+
+                    db.MessageLogDbSet.Add(MessageLog);
+                    db.SaveChanges();
                 }
-
-                db.MessageLogDbSet.Add(MessageLog);
-                db.SaveChanges();
             }
+            catch (Exception error)
+            {
+                if (messageResponse == null)
+                    messageResponse = new MessageResponse();
+                messageResponse.ErrorMessage = "Connection to database issue: " + error.Message;
+                messageResponse.ReturnCode = ReturnCode.InternalError;
+            }
+            
         }
 
     }
 
     public interface IDatabaseConnection
     {
-        void WriteToDatabase(MessageRequest message, string address, string errorMessage, string returnCode);
+        void WriteToDatabase(MessageRequest message, string address, ref MessageResponse messageResponse);
     }
 }

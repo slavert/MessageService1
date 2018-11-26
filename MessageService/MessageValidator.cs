@@ -11,20 +11,19 @@ namespace MessageService
     {
         MessageRequest Message { get; set; }
 
-        public MessageResponse messageResponse { get; set; }
         public string RecipientAddress { get; set; }
 
         public bool MessageValidationPassed { get; set; }
 
-        public MessageValidator(MessageRequest message, IRecipientAddressResolver recipientAddressResolver, IDatabaseConnection databaseConnection)
+        public MessageValidator(MessageRequest message, ref MessageResponse messageResponse, IRecipientAddressResolver recipientAddressResolver, IDatabaseConnection databaseConnection)
         {
             Message = message;
-            RecipientAddress = recipientAddressResolver.GetRecipientAddress(message);
+            RecipientAddress = recipientAddressResolver.GetRecipientAddress(message, ref messageResponse);
             messageResponse = ValidateMessage();
 
             //Log actions to database if input message did not pass validation
             if (!MessageValidationPassed)
-                databaseConnection.WriteToDatabase(Message, RecipientAddress, messageResponse.ErrorMessage, Convert.ToString(messageResponse.ReturnCode));
+                databaseConnection.WriteToDatabase(Message, RecipientAddress, ref messageResponse);
         }
 
         public MessageResponse ValidateMessage()

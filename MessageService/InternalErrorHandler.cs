@@ -10,7 +10,12 @@ namespace MessageService
         public bool HandleError(Exception error)
         {
             IDatabaseConnection databaseConnection = new DatabaseConnectionMSSQL();
-            databaseConnection.WriteToDatabase(null, null, error.Message, Convert.ToString(ReturnCode.InternalError));
+            MessageResponse messageResponse = new MessageResponse() 
+            { 
+                ErrorMessage = error.Message,
+                ReturnCode = ReturnCode.InternalError 
+            };
+            databaseConnection.WriteToDatabase(null, null, ref messageResponse);
             return false;
         }
 

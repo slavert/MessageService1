@@ -14,7 +14,7 @@ namespace MessageService
             DatabaseConnection = databaseConnection;
         }
 
-        public string GetRecipientAddress(MessageRequest message)
+        public string GetRecipientAddress(MessageRequest message, ref MessageResponse messageResponse)
         {
             try
             {
@@ -40,7 +40,13 @@ namespace MessageService
             catch (Exception error)
             {
                 //Logging error
-                DatabaseConnection.WriteToDatabase(null, null, error.Message, Convert.ToString(Convert.ToString(ReturnCode.InternalError)));
+                messageResponse = new MessageResponse()
+                {
+                    ErrorMessage = error.Message,
+                    ReturnCode = ReturnCode.InternalError
+                };
+                
+                DatabaseConnection.WriteToDatabase(null, null, ref messageResponse);
                 return null;
             }
             
@@ -50,7 +56,7 @@ namespace MessageService
 
     public interface IRecipientAddressResolver
     {
-        string GetRecipientAddress(MessageRequest message);
+        string GetRecipientAddress(MessageRequest message, ref MessageResponse messageResponse);
     }
 
     
