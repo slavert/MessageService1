@@ -6,7 +6,7 @@ namespace MessageService
     public class DatabaseConnectionMSSQL : IDatabaseConnection
     {
 
-        public void WriteToDatabase(MessageRequest message, string address, ref MessageResponse messageResponse)
+        public void WriteToDatabase(MessageRequest message, string address, MessageResponse messageResponse)
         {
             try
             {
@@ -15,7 +15,6 @@ namespace MessageService
                     var MessageLog = new MessageLog()
                     {
                         EmailAddress = address,
-
                         CreationDate = DateTime.Now
                     };
 
@@ -37,10 +36,8 @@ namespace MessageService
             }
             catch (Exception error)
             {
-                if (messageResponse == null)
-                    messageResponse = new MessageResponse();
-                messageResponse.ErrorMessage = "Connection to database issue: " + error.Message;
-                messageResponse.ReturnCode = ReturnCode.InternalError;
+                //Logging error when issue with database
+                ExceptionLogger.Log(ReturnCode.InternalError, "Connection to database issue: " + error.Message);
             }
             
         }
@@ -49,6 +46,6 @@ namespace MessageService
 
     public interface IDatabaseConnection
     {
-        void WriteToDatabase(MessageRequest message, string address, ref MessageResponse messageResponse);
+        void WriteToDatabase(MessageRequest message, string address, MessageResponse messageResponse);
     }
 }

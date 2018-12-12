@@ -7,14 +7,13 @@ namespace MessageService
     //Resolving recipient address from input message
     public class RecipientEmailAddressResolver : IRecipientAddressResolver
     {
-        IDatabaseConnection DatabaseConnection { get; set; }
 
-        public RecipientEmailAddressResolver(IDatabaseConnection databaseConnection)
+        public RecipientEmailAddressResolver()
         {
-            DatabaseConnection = databaseConnection;
+
         }
 
-        public string GetRecipientAddress(MessageRequest message, ref MessageResponse messageResponse)
+        public string GetRecipientAddress(MessageRequest message)
         {
             try
             {
@@ -40,13 +39,7 @@ namespace MessageService
             catch (Exception error)
             {
                 //Logging error
-                messageResponse = new MessageResponse()
-                {
-                    ErrorMessage = error.Message,
-                    ReturnCode = ReturnCode.InternalError
-                };
-                
-                DatabaseConnection.WriteToDatabase(null, null, ref messageResponse);
+                ExceptionLogger.Log(ReturnCode.InternalError, error.Message);
                 return null;
             }
             
@@ -56,7 +49,7 @@ namespace MessageService
 
     public interface IRecipientAddressResolver
     {
-        string GetRecipientAddress(MessageRequest message, ref MessageResponse messageResponse);
+        string GetRecipientAddress(MessageRequest message);
     }
 
     

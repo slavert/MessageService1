@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 using System.ServiceModel;
 
 //WCF Service definitions
@@ -47,6 +48,21 @@ namespace MessageService
     [DataContract]
     public class MessageResponse
     {
+        [DataMember]
+        public ReturnCode ReturnCode { get; set; }
+        [DataMember]
+        public string ErrorMessage { get; set; }
+    }
+
+    [DataContract]
+    public class MessageResponseError
+    {
+        public MessageResponseError(Exception error)
+        {
+            this.ReturnCode = ReturnCode.InternalError;
+            ErrorMessage = error.Message;
+        }
+
         [DataMember]
         public ReturnCode ReturnCode { get; set; }
         [DataMember]

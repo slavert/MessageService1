@@ -16,28 +16,44 @@ namespace MessageService
     public class MessageService : IMessageService
     {
 
+        private string recipientAddress { get; set; }
+
         public MessageResponse Send(MessageRequest message)
         {
             //Setting dependency injection container
             IKernel kernel = new StandardKernel();
             kernel.Load(Assembly.GetExecutingAssembly());
 
-            var DatabaseConnection = kernel.Get<IDatabaseConnection>();
-            var RecipientAddressResolver = kernel.Get<IRecipientAddressResolver>();
+            var databaseConnection = kernel.Get<IDatabaseConnection>();
+            var recipientAddressResolver = kernel.Get<IRecipientAddressResolver>();
 
-            MessageResponse messageResponse = null;
-            MessageValidator messageValidator = new MessageValidator(message, ref messageResponse, RecipientAddressResolver, DatabaseConnection);
+            recipientAddress = recipientAddressResolver.GetRecipientAddress(message);
+
+            MessageValidator messageValidator = new MessageValidator(message, recipientAddress);
+
+            string validationResult = messageValidator.ValidateMessage();
 
             //Send response using interface if input message validation was successful
-            if (messageValidator.MessageValidationPassed)
+            if (validationResult == "Message validated successfully")
             {
-                ISender sender = new EmailSender(DatabaseConnection);
+                var sender = kernel.Get<ISender>();
                 //Send requested message to recipient
-                sender.SendMessage(message, messageValidator.RecipientAddress, ref messageResponse);
+                sender.SendMessage(message, recipientAddress);
             }
-            if (messageResponse == null)
-                messageResponse = new MessageResponse() { ReturnCode = ReturnCode.Success };
-            return messageResponse;
+
+            //Write exceptions to database
+            if (!ExceptionLogger.LogsNonEmpty)
+                databaseConnection.WriteToDatabase(message, recipientAddress, null);
+            else
+                databaseConnection.WriteToDatabase(message, recipientAddress, ExceptionLogger.Logs);
+
+            //Return response
+            if (!ExceptionLogger.LogsNonEmpty && validationResult == "Message validated successfully")
+                return new MessageResponse() { ReturnCode = ReturnCode.Success };
+            else if (!ExceptionLogger.LogsNonEmpty)
+                return new MessageResponse() { ReturnCode = ReturnCode.ValidationError, ErrorMessage = validationResult };
+            else
+                return ExceptionLogger.Logs;
             
         }
 
@@ -51,6 +67,7 @@ namespace MessageService
         {
             Bind<IDatabaseConnection>().To<DatabaseConnectionMSSQL>();
             Bind<IRecipientAddressResolver>().To<RecipientEmailAddressResolver>();
+            Bind<ISender>().To<EmailSender>();
         }
     }
 }

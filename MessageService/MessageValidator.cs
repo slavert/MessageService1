@@ -9,61 +9,52 @@ namespace MessageService
     //Validating input message
     public class MessageValidator
     {
-        MessageRequest Message { get; set; }
+        private MessageRequest message { get; set; }
 
-        public string RecipientAddress { get; set; }
+        private string recipientAddress { get; set; }
 
-        public bool MessageValidationPassed { get; set; }
-
-        public MessageValidator(MessageRequest message, ref MessageResponse messageResponse, IRecipientAddressResolver recipientAddressResolver, IDatabaseConnection databaseConnection)
+        public MessageValidator(MessageRequest message, string recipientAddress)
         {
-            Message = message;
-            RecipientAddress = recipientAddressResolver.GetRecipientAddress(message, ref messageResponse);
-            messageResponse = ValidateMessage();
-
-            //Log actions to database if input message did not pass validation
-            if (!MessageValidationPassed)
-                databaseConnection.WriteToDatabase(Message, RecipientAddress, ref messageResponse);
+            this.message = message;
+            this.recipientAddress = recipientAddress;
         }
 
-        public MessageResponse ValidateMessage()
+        public string ValidateMessage()
         {
             //Case: Recipient is person
-            if (Message.Recipient.LegalForm == LegalForm.Person)
+            if (message.Recipient.LegalForm == LegalForm.Person)
             {
                 //Case: Missing person name or surname
-                if (String.IsNullOrWhiteSpace(Message.Recipient.LastName) || String.IsNullOrWhiteSpace(Message.Recipient.FirstName))
-                    return new MessageResponse { ErrorMessage = "Name or surname is missing", ReturnCode = ReturnCode.ValidationError };
+                if (String.IsNullOrWhiteSpace(message.Recipient.LastName) || String.IsNullOrWhiteSpace(message.Recipient.FirstName))
+                    return "Name or surname is missing";
 
                 //Case: Missing person email address
-                else if (RecipientAddress==null)
-                    return new MessageResponse { ErrorMessage = "Email address is missing", ReturnCode = ReturnCode.ValidationError };
+                else if (recipientAddress == null)
+                    return "Email address is missing";
 
                 //Case: Incorrect person email address
-                else if (!Regex.IsMatch(RecipientAddress, GlobalConst.EmailValidationPattern))
-                    return new MessageResponse { ErrorMessage = "Email address is incorrect", ReturnCode = ReturnCode.ValidationError };
+                else if (!Regex.IsMatch(recipientAddress, GlobalConst.EmailValidationPattern))
+                    return "Email address is incorrect";
             }
 
             //Case: Recipient is company
-            if (Message.Recipient.LegalForm == LegalForm.Company)
+            if (message.Recipient.LegalForm == LegalForm.Company)
             {
                 //Case: Missing company name
-                if (String.IsNullOrWhiteSpace(Message.Recipient.LastName))
-                    return new MessageResponse { ErrorMessage = "Company name is missing", ReturnCode = ReturnCode.ValidationError };
+                if (String.IsNullOrWhiteSpace(message.Recipient.LastName))
+                    return "Company name is missing";
 
                 //Case: Missing company email address
-                else if (RecipientAddress == null)
-                    return new MessageResponse { ErrorMessage = "Email address is missing", ReturnCode = ReturnCode.ValidationError };
+                else if (recipientAddress == null)
+                    return "Email address is missing";
 
                 //Case: Incorrect company email address
-                else if (!Regex.IsMatch(RecipientAddress, GlobalConst.EmailValidationPattern))
-                    return new MessageResponse { ErrorMessage = "Email address is incorrect", ReturnCode = ReturnCode.ValidationError };
+                else if (!Regex.IsMatch(recipientAddress, GlobalConst.EmailValidationPattern))
+                    return "Email address is incorrect";
 
             }
 
-            MessageValidationPassed = true;
-
-            return null;
+            return "Message validated successfully";
         }
 
 

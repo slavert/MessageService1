@@ -5,7 +5,7 @@ using System.ServiceModel.Dispatcher;
 namespace MessageService
 {
     //Service behavior
-    public class ServiceBehaviorAttribute : Attribute, IServiceBehavior 
+    public class ServiceBehaviorAttribute : Attribute, IServiceBehavior
     {
 
         public void AddBindingParameters(ServiceDescription serviceDescription, System.ServiceModel.ServiceHostBase serviceHostBase, System.Collections.ObjectModel.Collection<ServiceEndpoint> endpoints, System.ServiceModel.Channels.BindingParameterCollection bindingParameters)
@@ -25,5 +25,6 @@ namespace MessageService
         public void Validate(ServiceDescription serviceDescription, System.ServiceModel.ServiceHostBase serviceHostBase)
         {
         }
+
     }
 }

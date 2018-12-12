@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Ninject;
+using System;
+using System.Reflection;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
 
 namespace MessageService
@@ -9,18 +13,26 @@ namespace MessageService
 
         public bool HandleError(Exception error)
         {
-            IDatabaseConnection databaseConnection = new DatabaseConnectionMSSQL();
-            MessageResponse messageResponse = new MessageResponse() 
-            { 
-                ErrorMessage = error.Message,
-                ReturnCode = ReturnCode.InternalError 
-            };
-            databaseConnection.WriteToDatabase(null, null, ref messageResponse);
-            return false;
+            IKernel kernel = new StandardKernel();
+            kernel.Load(Assembly.GetExecutingAssembly());
+
+            var DatabaseConnection = kernel.Get<IDatabaseConnection>();
+
+            //Writin error to database
+            DatabaseConnection.WriteToDatabase(null, null, new MessageResponse() { ReturnCode = ReturnCode.InternalError, ErrorMessage = error.Message });
+            
+            return true;
         }
 
         public void ProvideFault(Exception error, System.ServiceModel.Channels.MessageVersion version, ref System.ServiceModel.Channels.Message fault)
         {
+            MessageResponseError messageResponseError = new MessageResponseError(error);
+
+            FaultException<MessageResponseError> faultException = new FaultException<MessageResponseError>(messageResponseError);
+
+            MessageFault messageFault = faultException.CreateMessageFault();
+
+            fault = Message.CreateMessage(version, messageFault, null);
         }
     }
 }

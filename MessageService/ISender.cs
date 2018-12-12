@@ -8,18 +8,14 @@ namespace MessageService
     //Sending requested message to recipient
     public class EmailSender : ISender
     {
-        IDatabaseConnection DatabaseConnection { get; set; }
 
-        public EmailSender(IDatabaseConnection databaseConnection)
+        public EmailSender()
         {
-            DatabaseConnection = databaseConnection;
+
         }
 
-        public void SendMessage(MessageRequest message, string address, ref MessageResponse senderMessageResponse)
+        public void SendMessage(MessageRequest message, string address)
         {
-            //Logging actions to database
-            DatabaseConnection.WriteToDatabase(message, address, ref senderMessageResponse);
-
             try
             {
                 MailMessage mailMessage = new MailMessage()
@@ -47,19 +43,14 @@ namespace MessageService
             }
             catch(Exception error)
             {
-                senderMessageResponse = new MessageResponse()
-                {
-                    ErrorMessage = error.Message,
-                    ReturnCode = ReturnCode.InternalError
-                };
-                DatabaseConnection.WriteToDatabase(null, null, ref senderMessageResponse);
+                //Logging error when issue with sending email message
+                ExceptionLogger.Log(ReturnCode.InternalError, error.Message);
             }
-            
         }
     }
 
     public interface ISender
     {
-        void SendMessage(MessageRequest message, string address, ref MessageResponse senderMessageResponse);
+        void SendMessage(MessageRequest message, string address);
     }
 }
