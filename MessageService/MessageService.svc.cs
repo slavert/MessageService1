@@ -42,18 +42,15 @@ namespace MessageService
             }
 
             //Write exceptions to database
-            if (!ExceptionLogger.LogsNonEmpty)
-                databaseConnection.WriteToDatabase(message, recipientAddress, null);
-            else
-                databaseConnection.WriteToDatabase(message, recipientAddress, ExceptionLogger.Logs);
+            databaseConnection.WriteToDatabase(message, recipientAddress, ErrorLogger.Logs);
 
             //Return response
-            if (!ExceptionLogger.LogsNonEmpty && validationResult == "Message validated successfully")
-                return new MessageResponse() { ReturnCode = ReturnCode.Success };
-            else if (!ExceptionLogger.LogsNonEmpty)
-                return new MessageResponse() { ReturnCode = ReturnCode.ValidationError, ErrorMessage = validationResult };
+            if (!ErrorLogger.LogsNonEmpty && validationResult == "Message validated successfully")
+                return new MessageResponse(ReturnCode.Success, null);
+            else if (!ErrorLogger.LogsNonEmpty)
+                return new MessageResponse(ReturnCode.ValidationError, validationResult );
             else
-                return ExceptionLogger.Logs;
+                return ErrorLogger.Logs;
             
         }
 

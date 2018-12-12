@@ -19,16 +19,16 @@ namespace MessageService
             var DatabaseConnection = kernel.Get<IDatabaseConnection>();
 
             //Writin error to database
-            DatabaseConnection.WriteToDatabase(null, null, new MessageResponse() { ReturnCode = ReturnCode.InternalError, ErrorMessage = error.Message });
+            DatabaseConnection.WriteToDatabase(null, null, new MessageResponse( ReturnCode.InternalError, error.Message ));
             
             return true;
         }
 
         public void ProvideFault(Exception error, System.ServiceModel.Channels.MessageVersion version, ref System.ServiceModel.Channels.Message fault)
         {
-            MessageResponseError messageResponseError = new MessageResponseError(error);
+            MessageResponse messageResponseError = new MessageResponse(error);
 
-            FaultException<MessageResponseError> faultException = new FaultException<MessageResponseError>(messageResponseError);
+            FaultException<MessageResponse> faultException = new FaultException<MessageResponse>(messageResponseError);
 
             MessageFault messageFault = faultException.CreateMessageFault();
 

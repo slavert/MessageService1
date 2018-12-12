@@ -37,7 +37,7 @@ namespace MessageService
             catch (Exception error)
             {
                 //Logging error when issue with database
-                ExceptionLogger.Log(ReturnCode.InternalError, "Connection to database issue: " + error.Message);
+                ErrorLogger.Log(ReturnCode.InternalError, "Connection to database issue: " + error.Message);
             }
             
         }

@@ -5,16 +5,17 @@ using System.Web;
 
 namespace MessageService
 {
-    public class ExceptionLogger
+    public class ErrorLogger
     {
-        public static MessageResponse Logs;
+        public static MessageResponse Logs { set; get; }
 
-        public static bool LogsNonEmpty;
+        public static bool LogsNonEmpty { set; get; }
 
         public static void Log(ReturnCode returnCode, string errorMessage)
         {
-            Logs = new MessageResponse(){ReturnCode = returnCode, ErrorMessage = errorMessage};
+            Logs = new MessageResponse(returnCode, errorMessage);
             LogsNonEmpty = false;
         }
     }
+
 }

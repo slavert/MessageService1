@@ -48,19 +48,16 @@ namespace MessageService
     [DataContract]
     public class MessageResponse
     {
-        [DataMember]
-        public ReturnCode ReturnCode { get; set; }
-        [DataMember]
-        public string ErrorMessage { get; set; }
-    }
-
-    [DataContract]
-    public class MessageResponseError
-    {
-        public MessageResponseError(Exception error)
+        public MessageResponse(Exception error)
         {
             this.ReturnCode = ReturnCode.InternalError;
             ErrorMessage = error.Message;
+        }
+
+        public MessageResponse(ReturnCode returnCode, string errorMessage)
+        {
+            ReturnCode = returnCode;
+            ErrorMessage = errorMessage;
         }
 
         [DataMember]

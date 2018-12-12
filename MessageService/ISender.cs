@@ -44,7 +44,7 @@ namespace MessageService
             catch(Exception error)
             {
                 //Logging error when issue with sending email message
-                ExceptionLogger.Log(ReturnCode.InternalError, error.Message);
+                ErrorLogger.Log(ReturnCode.InternalError, error.Message);
             }
         }
     }

@@ -39,7 +39,7 @@ namespace MessageService
             catch (Exception error)
             {
                 //Logging error
-                ExceptionLogger.Log(ReturnCode.InternalError, error.Message);
+                ErrorLogger.Log(ReturnCode.InternalError, error.Message);
                 return null;
             }
             
